@@ -48,6 +48,15 @@
     </div>
   </div>
 
+  <div class="metronome">
+    <div id="metronomeKey" class="key">
+      <kbd>M</kbd>
+      <spqn class="sound">metronome</spqn>
+    </div>
+  </div>
+
+
+
   <audio data-key="65" src="sounds/clap.wav"></audio>
   <audio data-key="83" src="sounds/hihat.wav"></audio>
   <audio data-key="68" src="sounds/kick.wav"></audio>
@@ -57,9 +66,50 @@
   <audio data-key="74" src="sounds/snare.wav"></audio>
   <audio data-key="75" src="sounds/tom.wav"></audio>
   <audio data-key="76" src="sounds/tink.wav"></audio>
+  <audio id="metronomeSound" src="sounds/tink.wav"></audio>
 
 <script>
+  function playSound (e) {
+    const audio = document.querySelector(`audio[data-key="${e.keyCode}"]`); // why `, what is querySelector
+    const key = document.querySelector(`.key[data-key="${e.keyCode}"]`);
+    if(!audio) return;
 
+    audio.currentTime = 0;
+    audio.play();
+    key.classList.add('playing');
+  }
+
+  let isMetronomePlaying;
+  let metronomeInterval;
+  function switchMetronome(e, bpm) {
+    const audio = document.getElementById('metronomeSound');
+    const key = document.getElementById('metronomeKey');
+    if (isMetronomePlaying) {
+      console.log(metronomeInterval);
+      clearInterval(metronomeInterval);
+      isMetronomePlaying = false;
+    } else {
+      const bpm = 120;
+      const interval = 60000 / bpm;
+      metronomeInterval = setInterval(() => {
+        audio.currentTime = 0;
+        audio.play();
+        key.classList.add('playing');
+      }, interval);
+      console.log(metronomeInterval);
+      isMetronomePlaying = true;
+    }
+  }
+
+  function removeTransition(e) {
+    if (e.propertyName !== 'transform') return;
+    this.classList.remove('playing');
+  }
+
+  const keys = document.querySelectorAll('.key');
+  keys.forEach(key => key.addEventListener('transitionend', removeTransition));
+  window.addEventListener('keydown', playSound);
+  document.getElementById('metronomeKey').addEventListener('click', switchMetronome);
 </script>
 
 
